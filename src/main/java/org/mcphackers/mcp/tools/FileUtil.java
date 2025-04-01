@@ -3,6 +3,7 @@ package org.mcphackers.mcp.tools;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -131,8 +132,12 @@ public abstract class FileUtil {
 	}
 
 	public static void downloadFile(URL url, Path output) throws IOException {
-		ReadableByteChannel channel = Channels.newChannel(url.openStream());
-		try (FileOutputStream stream = new FileOutputStream(output.toAbsolutePath().toString())) {
+		URLConnection connection = url.openConnection();
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0");
+    
+		try (InputStream in = connection.getInputStream();
+			ReadableByteChannel channel = Channels.newChannel(in);
+			FileOutputStream stream = new FileOutputStream(output.toAbsolutePath().toString())) {
 			FileChannel fileChannel = stream.getChannel();
 			fileChannel.transferFrom(channel, 0, Long.MAX_VALUE);
 		}
